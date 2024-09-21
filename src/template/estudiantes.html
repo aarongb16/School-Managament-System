@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudiantes</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"> 
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    
+</head>
+<body>
+    <section>
+        
+        <header>
+     <a href="#" class="logo"> <img src="" alt=""></a>
+     <ul>
+        <li><a href="{{ url_for('ingreso') }}">Inicio</a></li>
+        <li><a href="{{ url_for('estudiantes') }}">Estudiantes</a></li>
+        <li><a href="{{ url_for('notas') }}">Notas</a></li>
+        <li><a href="{{ url_for('profesores') }}">Profesores</a></li>
+        <li><a href="{{ url_for('materias') }}">Materias</a></li>
+        <li><a href="{{ url_for('home') }}">Salir</a></li>
+     </ul>
+    </header>
+             
+    <div class="container">
+        <h1 class="est">Estudiantes</h1>
+        <div class="card shadow">
+            <div class="card-body"> 
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                        </div>
+                        <script>
+                            setTimeout(function() {
+                                document.querySelector('.alert').style.display = 'none';
+                            }, 5000); // Desaparece el mensaje después de 5 segundos
+                        </script>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+                <form action="/gestudiante" method="post">
+                                 
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="cedula">Cédula</label>
+                            <input type="number" min="0" max="999999999" class="form-control mb-3" name="cedula">
+                        </div>
+                        <div class="col">
+                            <label for="nombre">Nombre</label>
+                            <input type="text" class="form-control mb-3" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñüÜ\s]+" name="nombre">
+                        </div>
+                        <div class="col">
+                            <label for="apellido">Apellido</label>
+                            <input type="text" class="form-control mb-3" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñüÜ\s]+" name="apellido">
+                        </div>
+                        <div class="col">
+                            <label for="edad">Edad</label>
+                            <input type="number" min="0" max="100" class="form-control mb-3" name="edad">
+                        </div>
+                        <div class="row mb-3"></div>
+                        <div class="col">
+                            <label for="direccion">Dirección</label>
+                            <input type="text" class="form-control mb-3" name="direccion">
+                        </div>
+                        <div class="col">
+                            <label for="correo">Correo</label>
+                            <input type="email" class="form-control mb-3" name="correo">
+                        </div>
+                        <div class="col">
+                            <label for="telefono">Teléfono</label>
+                            <input type="tel" class="form-control mb-3" name="telefono">
+                        </div>
+                        <div class="row mb-3"></div>
+                        <div class="col">
+                            <label for="seccion">Sección</label>
+                            <input type="text" class="form-control mb-3" name="seccion">
+                        </div>
+                        <div class="col">
+                            <label for="fecha_insc">Fecha de Inscripción</label>
+                            <input type="date" class="form-control mb-3" name="fecha_inscripcion">
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <button class="btn btn-primary mb-3 mt-4 btn-block" type="submit">Guardar</button>
+                                <a href="{{ url_for('generar_excel') }}" class="btn btn-success mb-3 mt-4 btn-block">Generar Excel</a>
+                            </div>
+                            <div class="col">
+                                
+                            </div>
+                        </div>
+                      
+                    </div>
+                </form>
+                <!-- tabla -->
+<div class="overflow-auto">
+    <table class="table table-bordered" id="tablaEstudiantes">
+        <thead>
+            <th scope="col">Cedula</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Apellido</th>
+            <th scope="col">Edad</th>
+            <th scope="col">Dirección</th>
+            <th scope="col">Correo</th>
+            <th scope="col">Teléfono</th>
+            <th scope="col">Sección</th>
+            <th scope="col">Fecha de Inscripción</th>
+            <th scope="col">Editar</th>
+            <th scope="col">Eliminar</th>
+        </thead>
+        <tbody>
+            {% for e in data %}
+                <tr>
+                    <td>{{ e.cedula }}</td>
+                    <td>{{ e.nombre }}</td>
+                    <td>{{ e.apellido }}</td>
+                    <td>{{ e.edad }}</td>
+                    <td>{{ e.direccion }}</td>
+                    <td>{{ e.correo }}</td>
+                    <td>{{ e.telefono }}</td>
+                    <td>{{ e.seccion }}</td>
+                    <td>{{ e.fecha_inscripcion }}</td>
+                    <td><button class="btn btn-warning btn-sm" id="btn.edit{{e.cedula}}" data-bs-toggle="modal" data-bs-target="#modal{{e.cedula}}">Editar</button></td>
+                    <td><a href="{{url_for('eliminarEstudiante', cedula=e.cedula)}}" class="btn btn-danger btn-sm">Eliminar</a></td>
+                </tr>
+<!-- Modal -->
+<div class="modal fade" id="modal{{ e.cedula }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">{{ e.cedula }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form action="/editarestudiante/{{ e.cedula }}" method="post">
+            <label for="cedula">Cédula</label>
+            <input type="number" min="0" max="999999999" class="form-control mb-3" name="cedula" value="{{ e.cedula }}">
+            <label for="nombre">Nombre</label>
+            <input type="text" class="form-control mb-3" name="nombre"pattern="[A-Za-zÁÉÍÓÚáéíóúÑñüÜ\s]+" value="{{ e.nombre }}">
+            <label for="apellido">Apellido</label>
+            <input type="text" class="form-control mb-3" name="apellido"pattern="[A-Za-zÁÉÍÓÚáéíóúÑñüÜ\s]+" value="{{ e.apellido }}">
+            <label for="edad">Edad</label>
+            <input type="number" min="0" max="100" class="form-control mb-3" name="edad" value="{{ e.edad }}">
+            <label for="direccion">Dirección</label>
+            <input type="text" class="form-control mb-3" name="direccion" value="{{ e.direccion }}">
+            <label for="correo">Correo</label>
+            <input type="email" class="form-control mb-3" name="correo" value="{{ e.correo }}">
+            <label for="telefono">Teléfono</label>
+            <input type="tel" class="form-control mb-3" name="telefono" value="{{ e.telefono }}">
+            <label for="seccion">Sección</label>
+            <input type="text" class="form-control mb-3" name="seccion" value="{{ e.seccion }}">
+            <label for="fecha_insc">Fecha de Inscripción</label>
+            <input type="date" class="form-control mb-3" name="fecha_inscripcion" value="{{ e.fecha_inscripcion }}">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
+          <button type="submit" class="btn btn-primary" >Guardar cambios</button>
+        </div>
+    </form>
+      </div>
+    </div>
+  </div>
+
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+         {% endfor %}
+        </tbody>
+        </table>
+                
+
+                     </div>
+                <div> 
+            </div>
+        </div>
+    </div>
+<div>
+
+    
+    <script>
+        $(document).ready(function () {
+           $('#tablaEstudiantes').DataTable({
+               language: {
+                   "decimal": "",
+                   "emptyTable": "No hay información",
+                   "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                   "infoEmpty": "Mostrando 0 a 0 de 0 Entradas",
+                   "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                   "infoPostFix": "",
+                   "thousands": ",",
+                   "lengthMenu": "Mostrar _MENU_ Entradas",
+                   "loadingRecords": "Cargando...",
+                   "processing": "Procesando...",
+                   "search": "Buscar:",
+                   "zeroRecords": "Sin resultados encontrados",
+                   "paginate": {
+                       "first": "Primero",
+                       "last": "Último",
+                       "next": "Siguiente",
+                       "previous": "Anterior"
+                   }
+               },
+               dom: '<"top"lf>rt<"bottom"ip><"clear">',
+               initComplete: function () {
+                   var table = $('#tablaEstudiantes').DataTable();
+                   $('.dataTables_filter').appendTo('.top');
+                   $('.dataTables_length').appendTo('.top');
+               }
+               // ... otras opciones y configuraciones ...
+           });
+       });
+       </script>
+       
+</body>
+</html>
+
+<style>
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+section {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    padding: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+}
+
+header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 100px; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header ul {
+    position: relative;
+    display: flex;
+}
+
+header ul li {
+    list-style: none;
+}
+header ul li a {
+    display: inline-block;
+    color: slateblue;
+    font-weight: 400;
+    margin-left: 40px;
+    text-decoration: none;
+    animation: fadeIn 1s ease-in-out;
+    transition: transform 0.3s ease-in-out;
+}
+header ul li a:hover {
+    transform: scale(1.05, 1.05);
+    transform-origin: center;
+} 
+.est {
+    text-align: center;
+    color: midnightblue;
+    margin-bottom: 30px;
+}
+
+
